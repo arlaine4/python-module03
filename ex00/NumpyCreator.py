@@ -16,9 +16,11 @@ class NumpyCreator:
 
     @classmethod
     def from_tuple(cls, tpl):
-        # add check for type tpl[0] and tpl[1]
         if not isinstance(tpl, tuple) or len(tpl) != 2:
             return None
+        for elem in tpl:
+            if type(elem) is not int:
+                return None
         array = np.array(tpl)
         return array
 
@@ -31,10 +33,12 @@ class NumpyCreator:
 
     @classmethod
     def from_shape(cls, shape, value=0):
-        # add test for type shape[0] and shape[1]
         if not isinstance(shape, tuple) or type(value) not in \
                 [int, float] or len(shape) != 2:
             return None
+        for elem in shape:
+            if type(elem) is not int or elem < 0:
+                return None
         array = np.full((shape[0], shape[1]), value)
         return array
 
@@ -48,6 +52,8 @@ class NumpyCreator:
     @classmethod
     def identity(cls, n):
         if not isinstance(n, int):
+            return None
+        if n < 0:
             return None
         array = np.identity(n)
         return array
