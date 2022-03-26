@@ -1,4 +1,5 @@
 import numpy as np
+from copy import deepcopy
 
 
 class ScrapBooker:
@@ -24,3 +25,15 @@ class ScrapBooker:
             return None
         to_delete = [i - 1 for i in range(array.shape[axis] + 1) if i != 0 and i % 3 == 0]
         return np.delete(array, to_delete, axis)
+
+    @classmethod
+    def juxtapose(cls, array, n, axis):
+        if not isinstance(array, np.ndarray) or not isinstance(n, int) or\
+                not isinstance(axis, int):
+            return None
+        if axis not in [0, 1] or n <= 0:
+            return None
+        tmp_array = deepcopy(array)
+        for i in range(n - 1):
+            array = np.concatenate((array, tmp_array), axis=axis)
+        return array
