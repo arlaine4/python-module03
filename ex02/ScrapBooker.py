@@ -37,3 +37,14 @@ class ScrapBooker:
         for i in range(n - 1):
             array = np.concatenate((array, tmp_array), axis=axis)
         return array
+
+    @classmethod
+    def mosaic(cls, array, dim):
+        if not isinstance(array, np.ndarray) or not isinstance(dim, tuple):
+            return None
+        for i in range(len(dim)):
+            if i == 2:
+                return None
+            if type(dim[i]) is not int:
+                return None
+        return np.array(np.tile(array, dim))
