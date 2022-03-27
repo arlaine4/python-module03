@@ -36,10 +36,6 @@ class ColorFilter:
             return None
         array[:, :, 1] -= array[:, :, 1]
         array[:, :, 2] -= array[:, :, 2]
-        #array[0, :, :] = array[0, :, :] + (255 - array[0, :, :])
-        #array[:, :, 0] = array[:, :, 0] + (255 - array[:, :, 0])
-        #array[:, :, 1] = 255 - array[:, :, 1]
-        #array[:, :, 2] = 255 - array[:, :, 2]
         return array
 
     @classmethod
@@ -55,8 +51,6 @@ class ColorFilter:
     def to_grayscale(cls, array, filter, **kwargs):
         if not ColorFilter.check_instance(array) or type(filter) is not str:
             return None
-        if kwargs:
-            channels = kwargs[list(kwargs.keys())[0]]
         if filter in ['w', 'weighted']:
             try:
                 channels = kwargs[list(kwargs.keys())[0]]
@@ -66,16 +60,8 @@ class ColorFilter:
                 return None
             array = np.sum([array[:, :, 0] * channels[0], array[:, :, 1] * channels[1], array[:, :, 2] * channels[2]],
                            axis=0)
-            # array = np.sum(array[:, :, 0] * channels[0], array[:, :, 1] * channels[1], array[:, :, 2] * channels[2])
-            # array[:, :, 0] = (array[:, :, 0] * channels[0]) / channels[0]
-            # array[:, :, 1] = (array[:, :, 1] * channels[1]) / channels[1]
-            # array[:, :, 2] = (array[:, :, 2] * channels[2]) / channels[2]
         elif filter in ['m', 'mean']:
-            # TODO
-            return
-        """if _filter == "m" or _filter == "mean":
-                    array[:, :, 0:3] = np.sum(array[:, :, 0:3] / 3, axis=2, keepdims=True).astype(array.dtype)
-                    return array"""
+            array[:, :, 0:3] = np.sum(array[:, :, 0:3] / 3, axis=2, keepdims=True)
         return array
 
 
