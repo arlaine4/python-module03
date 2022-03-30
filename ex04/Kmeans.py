@@ -3,7 +3,8 @@ import argparse
 import sys
 import numpy as np
 from sklearn.cluster import KMeans
-import seaborn as sns
+from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 
 def parse_arguments():
@@ -18,7 +19,10 @@ def parse_arguments():
 
 def rework_df(dataframe):
     new_df = dataframe.drop('Unnamed: 0', axis=1)
-    return new_df, np.array(new_df)
+    X = np.array(new_df)
+    #scaler = MinMaxScaler()
+    #X = scaler.fit_transform(X)
+    return new_df, X
 
 
 class KmeansClustering:
@@ -26,10 +30,30 @@ class KmeansClustering:
         self.n_centroid = n_centroid
         self.max_iter = max_iter
         self.centroids = []
+        self.model = KMeans(n_clusters=self.n_centroid,
+                         max_iter=self.max_iter,
+                         n_init=42,
+                         init='random')
 
     def fit(self, X):
-        print(KMeans(n_clusters=self.n_centroid).fit(X))
-        print()
+        self.model.fit(X)
+        print('Cluster centers positions :\n', self.model.cluster_centers_)
+
+    def predict(self, X):
+        y_hat = self.model.predict(X)
+        print('Predictions :\n', y_hat)
+        return y_hat
+
+
+    def plot_clusters_3D(self, X, y_hat):
+        fig = plt.figure(figsize=(10, 10))
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y_hat)
+        ax.set_xlabel('Height')
+        ax.set_ylabel('Weight')
+        ax.set_zlabel('Bone density')
+        ax.legend()
+        plt.show()
 
 
 if __name__ == "__main__":
@@ -41,5 +65,7 @@ if __name__ == "__main__":
     except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError):
         sys.exit('File error')
     df, X = rework_df(df)
-    k_mean = KmeansClustering(option.max_iter, option.ncentroid)
-    k_mean.fit(X)
+    model = KmeansClustering(option.max_iter, option.ncentroid)
+    model.fit(X)
+    y_hat = model.predict(X)
+    model.plot_clusters_3D(X, y_hat)
