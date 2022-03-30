@@ -12,7 +12,9 @@ class ScrapBooker:
             return None
         if type(position[0]) is not int or type(position[1]) is not int or len(position) != 2:
             return None
-        return array[position[0]:dim[0] + 1, position[1]:dim[1]]
+        if position[0] + dim[0] > array.shape[0] or position[1] + dim[1] > array.shape[1]:
+            return None
+        return array[position[0]:position[0] + dim[0], position[1]: position[1] + dim[1]]
 
     @classmethod
     def thin(cls, array, n, axis):
@@ -23,7 +25,8 @@ class ScrapBooker:
             return None
         if axis == 0 and n >= array.shape[0] or (axis == 1 and n >= array.shape[1]):
             return None
-        to_delete = [i - 1 for i in range(array.shape[axis] + 1) if i != 0 and i % 3 == 0]
+        axis = 0 if axis == 1 else 1
+        to_delete = [i - 1 for i in range(array.shape[axis] + 1) if i != 0 and i % n == 0]
         return np.delete(array, to_delete, axis)
 
     @classmethod
@@ -34,6 +37,7 @@ class ScrapBooker:
         if axis not in [0, 1] or n <= 0:
             return None
         tmp_array = deepcopy(array)
+        # axis = 0 if axis == 1 else 0
         for i in range(n - 1):
             array = np.concatenate((array, tmp_array), axis=axis)
         return array
@@ -45,6 +49,6 @@ class ScrapBooker:
         for i in range(len(dim)):
             if i == 2:
                 return None
-            if type(dim[i]) is not int:
+            if type(dim[i]) is not int or :dim[i] < 0
                 return None
         return np.array(np.tile(array, dim))
