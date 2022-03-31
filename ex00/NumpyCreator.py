@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class NumpyCreator:
+class NumPyCreator:
     @classmethod
     def from_list(cls, lst):
         if not isinstance(lst, list):
