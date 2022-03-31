@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from PIL import Image
+from PIL import *
 
 
 class ImageProcessor:
@@ -8,7 +8,7 @@ class ImageProcessor:
     def load(cls, path):
         try:
             img = Image.open(path)
-        except FileNotFoundError:
+        except (FileNotFoundError, UnidentifiedImageError):
             print('File not found')
             return None
         pixels = np.array(img)

@@ -49,6 +49,6 @@ class ScrapBooker:
         for i in range(len(dim)):
             if i == 2:
                 return None
-            if type(dim[i]) is not int or :dim[i] < 0
+            if type(dim[i]) is not int or dim[i] < 0:
                 return None
         return np.array(np.tile(array, dim))

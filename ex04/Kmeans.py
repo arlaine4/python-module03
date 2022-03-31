@@ -66,11 +66,11 @@ class KmeansClustering:
             distance[labels == k] = norm(X[labels == k] - centroids[k], axis=1)
         return np.sum(np.square(distance))
 
-    def get_regions(self, y_hat, X, nb_regions=4):
-        habs = [[] for i in range(self.n_centroid + 1)]
+    def get_regions(self, y_hat, X):
+        habs = [[] for i in range(self.n_centroid)]
         for i in range(len(habs)):
             habs[i] = [X[j] for j in range(len(X)) if i == y_hat[j]]
-        tab = [[1000, 0, 1000, 0, 1000, 0] for i in range(nb_regions)]
+        tab = [[1000, 0, 1000, 0, 1000, 0] for i in range(self.n_centroid)]
         for i in range(len(habs)):
             for j in range(len(habs[i])):
                 if habs[i][j][0] < tab[i][0]:
@@ -96,14 +96,16 @@ class KmeansClustering:
         self.get_regions(y_hat, X)
         y_hat = list(y_hat)
         print(f"\n\n\033[37;1;4mCentroids\033[0m : \n")
-        print(f'Centroid 0 : {y_hat.count(0)} / {len(y_hat)}'
-              f' --> {round(y_hat.count(0) / len(y_hat) * 100, 2)}%')
-        print(f'Centroid 1 : {y_hat.count(1)} / {len(y_hat)}'
+        for centroid in range(self.n_centroid):
+            print(f'Centroid {centroid} : {y_hat.count(centroid)} / {len(y_hat)}'
+                  f' --> {round(y_hat.count(centroid) / len(y_hat) * 100, 2)}%')
+        print('\n')
+        """print(f'Centroid 1 : {y_hat.count(1)} / {len(y_hat)}'
               f' --> {round(y_hat.count(1) / len(y_hat) * 100, 2)}%')
         print(f'Centroid 2 : {y_hat.count(2)} / {len(y_hat)}'
               f' --> {round(y_hat.count(2) / len(y_hat) * 100, 2)}%')
         print(f'Centroid 3 : {y_hat.count(3)} / {len(y_hat)}'
-              f' --> {round(y_hat.count(3) / len(y_hat) * 100, 2)}%', end='\n\n')
+              f' --> {round(y_hat.count(3) / len(y_hat) * 100, 2)}%', end='\n\n')"""
         return y_hat
 
 
@@ -121,9 +123,17 @@ class KmeansClustering:
         ax.set_zlabel('Bone density')
         plt.show()
 
+    @staticmethod
+    def check_valid_options(options):
+        if options.ncentroid < 2:
+            sys.exit(f'Invalid {options.ncentroid} for ncentroid value')
+        elif options.max_iter < 1:
+            sys.exit(f'Invalid {options.max_iter} for max_iter value')
+
 
 if __name__ == "__main__":
     option = parse_arguments()
+    KmeansClustering.check_valid_options(option)
     if not option.filepath.endswith('.csv'):
         sys.exit('Invalid format for dataframe')
     try:
