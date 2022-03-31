@@ -2,8 +2,9 @@ import pandas as pd
 import argparse
 import sys
 import numpy as np
-from sklearn.cluster import KMeansi, DBSCAN
+from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -31,20 +32,34 @@ class KmeansClustering:
         self.n_centroid = n_centroid
         self.max_iter = max_iter
         self.centroids = []
-        self.model = None
+        self.model = KMeans(n_clusters=self.n_centroid,
+                            max_iter=self.max_iter,
+                            init='random',
+                            algorithm='elkan')
 
     def fit(self, X):
-        save_centroids = []
-        for i in range(1, 20):
-            model = KMeans(n_clusters=self.n_centroid,
-                             max_iter=self.max_iter,
-                             init='random',
-                             algorithm='elkan')
-            model.fit(X)
-            save_centroids.append(model.cluster_centers_)
-
-        print('\n\033[37;1;4mCluster centers positions\033[0m :\n\n', self.model.cluster_centers_)
+        self.model.fit(X)
         self.centroids = self.model.cluster_centers_
+        print('\n\033[37;1;4mCluster centers positions\033[0m :\n\n', self.model.cluster_centers_)
+
+
+    def fit_plot(self, X):
+        save_centroids = []
+        n_init_grid_search = [10, 30]
+        algo_grid_search = ['auto', 'elkan']
+        for n_init in n_init_grid_search:
+            for algo in algo_grid_search:
+                model = KMeans(n_clusters=self.n_centroid,
+                           max_iter=self.max_iter,
+                           n_init=n_init,
+                           init='random',
+                           algorithm=algo)
+                model.fit(X)
+                save_centroids.append(model)
+                #self.plot_clusters_3D(X, self.predict(X), model.cluster_centers_)
+        for centroid in save_centroids:
+            self.plot_clusters_3D(X, centroid.predict(X), model=model)
+
 
     def predict(self, X):
         y_hat = self.model.predict(X)
@@ -61,11 +76,15 @@ class KmeansClustering:
         return y_hat
 
 
-    def plot_clusters_3D(self, X, y_hat):
+    def plot_clusters_3D(self, X, y_hat, model=None):
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=y_hat)
-        ax.scatter(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], s=50, c='black')
+        if not model:
+            ax.scatter(self.centroids[:, 0], self.centroids[:, 1], self.centroids[:, 2], s=50, c='black')
+        else:
+            ax.scatter(model.cluster_centers_[:, 0], model.cluster_centers_[:, 1],
+                       model.cluster_centers_[:, 2], s=50, c='black')
         ax.set_xlabel('Height')
         ax.set_ylabel('Weight')
         ax.set_zlabel('Bone density')
@@ -85,4 +104,5 @@ if __name__ == "__main__":
     model = KmeansClustering(option.max_iter, option.ncentroid)
     model.fit(X)
     y_hat = model.predict(X)
-    #model.plot_clusters_3D(X, y_hat)
+    model.fit_plot(X)
+    model.plot_clusters_3D(X, y_hat)
