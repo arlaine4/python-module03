@@ -56,22 +56,53 @@ class KmeansClustering:
                            algorithm=algo)
                 model.fit(X)
                 save_centroids.append(model)
-                #self.plot_clusters_3D(X, self.predict(X), model.cluster_centers_)
+                self.plot_clusters_3D(X, self.predict(X), model.cluster_centers_)
         for centroid in save_centroids:
             self.plot_clusters_3D(X, centroid.predict(X), model=model)
+
+    def compute_sse(self, X, labels, centroids):
+        distance = np.zeros(X.shape[0])
+        for k in range(self.n_clusters):
+            distance[labels == k] = norm(X[labels == k] - centroids[k], axis=1)
+        return np.sum(np.square(distance))
+
+    def get_regions(self, y_hat, X, nb_regions=4):
+        habs = [[] for i in range(self.n_centroid + 1)]
+        for i in range(len(habs)):
+            habs[i] = [X[j] for j in range(len(X)) if i == y_hat[j]]
+        tab = [[1000, 0, 1000, 0, 1000, 0] for i in range(nb_regions)]
+        for i in range(len(habs)):
+            for j in range(len(habs[i])):
+                if habs[i][j][0] < tab[i][0]:
+                    tab[i][0] = habs[i][j][0]
+                if habs[i][j][0] > tab[i][1]:
+                    tab[i][1] = habs[i][j][0]
+                if habs[i][j][1] < tab[i][2]:
+                    tab[i][2] = habs[i][j][1]
+                if habs[i][j][1] > tab[i][3]:
+                    tab[i][3] = habs[i][j][1]
+                if habs[i][j][2] < tab[i][4]:
+                    tab[i][4] = habs[i][j][2]
+                if habs[i][j][2] > tab[i][5]:
+                    tab[i][5] = habs[i][j][2]
+        print(f"\n\nClusters Regions :\n")
+        for i, region in enumerate(tab):
+            print(f'\033[37;1;4mRegion {i}\033[0m : {region}')
 
 
     def predict(self, X):
         y_hat = self.model.predict(X)
         print('\n\n\033[37;1;4mPredictions\033[0m :\n\n', y_hat)
+        self.get_regions(y_hat, X)
         y_hat = list(y_hat)
-        print(f'\n\033[37;1;4mCentroid 0\033[0m : {y_hat.count(0)} / {len(y_hat)}'
+        print(f"\n\n\033[37;1;4mCentroids\033[0m : \n")
+        print(f'Centroid 0 : {y_hat.count(0)} / {len(y_hat)}'
               f' --> {round(y_hat.count(0) / len(y_hat) * 100, 2)}%')
-        print(f'\033[37;1;4mCentroid 1\033[0m : {y_hat.count(1)} / {len(y_hat)}'
+        print(f'Centroid 1 : {y_hat.count(1)} / {len(y_hat)}'
               f' --> {round(y_hat.count(1) / len(y_hat) * 100, 2)}%')
-        print(f'\033[37;1;4mCentroid 2\033[0m : {y_hat.count(2)} / {len(y_hat)}'
+        print(f'Centroid 2 : {y_hat.count(2)} / {len(y_hat)}'
               f' --> {round(y_hat.count(2) / len(y_hat) * 100, 2)}%')
-        print(f'\033[37;1;4mCentroid 3\033[0m : {y_hat.count(3)} / {len(y_hat)}'
+        print(f'Centroid 3 : {y_hat.count(3)} / {len(y_hat)}'
               f' --> {round(y_hat.count(3) / len(y_hat) * 100, 2)}%', end='\n\n')
         return y_hat
 
@@ -88,7 +119,6 @@ class KmeansClustering:
         ax.set_xlabel('Height')
         ax.set_ylabel('Weight')
         ax.set_zlabel('Bone density')
-        ax.legend()
         plt.show()
 
 
@@ -104,5 +134,5 @@ if __name__ == "__main__":
     model = KmeansClustering(option.max_iter, option.ncentroid)
     model.fit(X)
     y_hat = model.predict(X)
-    model.fit_plot(X)
+    #model.fit_plot(X)
     model.plot_clusters_3D(X, y_hat)
